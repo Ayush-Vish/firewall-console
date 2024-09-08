@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@firewall/db": ["db/src/index.ts"]
+      "@firewall/db": ["db/src/index.ts"],
+      "@firewall/utils": ["utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
