@@ -2,7 +2,7 @@
 import { sign } from 'jsonwebtoken';
 import { Response } from 'express';
 import { Mongoose, ObjectId, Schema } from 'mongoose';
-
+import { arch, cpus, hostname, platform, release } from 'os';
 
 export function utils(): string {
   return 'utils';
@@ -43,3 +43,12 @@ export const cookieOptions : CookieOptions = {
   sameSite: "none",
 };
 
+export const getDeviceMetadata = () => {
+  return {
+      deviceName: hostname(),
+      platform: platform(),
+      arch: arch(),
+      release: release(),
+      cpuCores: cpus().length
+  };
+};

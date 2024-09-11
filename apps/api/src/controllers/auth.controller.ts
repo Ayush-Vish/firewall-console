@@ -4,33 +4,48 @@ import { sign } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { ApiError, cookieOptions } from '@firewall/utils';
 import { User } from '@firewall/db';
-
+import jwt from 'jsonwebtoken';
 
 const generateAccessAndRefreshToken = async (role: string, id: mongoose.Types.ObjectId) =>  {
-      const accessToken = sign(
-      {
-            id,
-            role,
-      },
-      'SOME_SECRET',
-      { expiresIn: '15m' }
-      );
-      
-      const refreshToken = sign(
-      {
-            id,
-            role,
-      },
-      'SOME_SECRET',
-      { expiresIn: '7d' }
-      );
-      
-      return { accessToken, refreshToken };
+      try {
+        const user = await User.findById(id);
+        if (!user) {
+          throw new ApiError('User not found', 404);
+        }
+        const accessToken = sign(
+          {
+            id: user._id,
+            email: user.email,
+            username: user.username,
+            role: user.role,
+          },
+          'SOME_SECRET',
+          { expiresIn: '7d' }
+        );
+        const refreshToken = sign(
+          {
+            id: user._id,
+            email: user.email,
+            username: user.username,
+            role: user.role,
+          },
+          'SOME_SECRET',
+          { expiresIn: '7d' }
+        );
+        user.refreshToken = refreshToken;
+        await user.save();
+        return { accessToken, refreshToken };
+
+      } catch (error) {
+        throw new ApiError('An error occurred', 500);
+      }
 }
+
 
 const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, email, password } = req.body;
+    console.log('registerUser');
+    const { username, email, password , role } = req.body;
     if (!username || !email || !password) {
       return next(new ApiError('Username, email, and password are required', 400));
     }
@@ -59,7 +74,7 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
       data: newUser,
     });
   } catch (error) {
-    return next(new ApiError('An error occurred', 500));
+    return next(new ApiError('An error occurred ' + error.message , 500));
   }
 };
 
@@ -96,6 +111,37 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     return next(new ApiError('An error occurred', 500));
   }
 };
+export const refreshAccessToken = async (req: Request, res: Response, next: NextFunction) =>  {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      return next(new ApiError('Unauthorized request', 401));
+    }
 
+    const decodedToken = jwt.verify(refreshToken, 'SOME_SECRET');
+    if (!decodedToken) {
+      return next(new ApiError('Invalid refresh token', 401));
+    }
+
+    const user = await User.findById(decodedToken.id);
+    if (!user) {
+      return next(new ApiError('Invalid refresh token', 401));
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshToken(
+      user.role,
+      user.id
+    );
+
+    res.cookie('accessToken', accessToken, cookieOptions);
+    res.cookie('refreshToken', newRefreshToken, cookieOptions);
+
+    return res.status(200).json({
+      message: 'Token refreshed successfully',
+    });
+  } catch (error) {
+    return next(new ApiError('An error occurred', 500));
+  }
+}
 
 export { registerUser, loginUser };

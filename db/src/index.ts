@@ -3,3 +3,5 @@ export * from './lib/models/user.model';
 export * from './lib/models/firewall.model';
 export * from './lib/models/endpoint.model';
 export * from './lib/models/anamoly.model';
+export * from './lib/models/node.model';
+export * from "./lib/models/log.model"

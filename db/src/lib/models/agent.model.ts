@@ -16,7 +16,7 @@ const FirewallAgentSchema = new mongoose.Schema({
         default: 'active'
     },
     policies: [{
-        type: String  // Policies assigned to this agent (could reference policy IDs)
+        type: String  
     }],
     version: {
         type: String,  // Firewall agent version
