@@ -4,25 +4,26 @@ import { ApiError, RequestWithUser } from '@firewall/utils';
 import { NextFunction, Request, Response } from 'express';
 
 // Assuming API key validation and user-node matching middleware is already in place
-export const storeLog = async (req, res, next) => {
+export const storeLog = async (req :RequestWithUser, res:  Response, next : NextFunction) => {
     try {
         const { logType, message, additionalInfo } = req.body;
 
-        // Get node information from the request, which was attached by the middleware
+        // Extract node information from the request, added by the API key middleware
         const { id: nodeId } = req.node;
-        const nodeIp = req.ip || req.headers['x-forwarded-for'];  // Capture IP address from request
+        const nodeIp = req.ip || req.headers['x-forwarded-for'];  // Capture the IP address from the request
 
-        // Create and store the log entry
+        // Create and save a new log entry
         const log = new Log({
-            nodeId,
-            ip: nodeIp,
-            logType,
-            message,
-            additionalInfo
+            nodeId,  // Associate the log with the node
+            ip: nodeIp,  // Capture and store the IP address of the node
+            logType,  // The type of log (e.g., info, warning, error)
+            message,  // The log message
+            additionalInfo  // Additional details, if any (can be an object)
         });
 
-        await log.save();
+        await log.save();  // Save the log to the database
 
+        // Respond with success
         res.status(201).json({ message: 'Log stored successfully' });
     } catch (error) {
         next(new ApiError('Server error: ' + error.message, 500));
@@ -30,15 +31,19 @@ export const storeLog = async (req, res, next) => {
 };
 
 export const getNodeLogs = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-      const nodeId = req.node.id; // Node ID comes from middleware
-      try {
-          const logs = await Log.find({ nodeId });
-          if (!logs || logs.length === 0) {
-              return res.status(404).json({ message: 'No logs found for this node' });
-          }
-          res.status(200).json(logs);
-      } catch (error) {
-          return next(new ApiError('Server error: ' + error.message, 500));
-      }
+    try {
+        const nodeId = req.node.id;  // Extract node ID from the request
+
+        // Find all logs associated with this node
+        const logs = await Log.find({ nodeId });
+        if (!logs || logs.length === 0) {
+            return res.status(404).json({ message: 'No logs found for this node' });
+        }
+
+        // Respond with the logs
+        res.status(200).json(logs);
+    } catch (error) {
+        return next(new ApiError('Server error: ' + error.message, 500));
+    }
   };
 
