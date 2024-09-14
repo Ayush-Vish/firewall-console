@@ -6,6 +6,9 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3001;
 import authRoutes from "./routes/auth.route"
 import nodeRoutes from "./routes/node.routes"
 import logRoutes from "./routes/log.route"
+
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocs from './swagger';
 connectToDB();
 const app = express();
 app.use(express.json());
@@ -14,10 +17,11 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
 });
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.use('/auth', authRoutes);
 app.use('/node', nodeRoutes);
 app.use('/logs' ,logRoutes )
-
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);
 });

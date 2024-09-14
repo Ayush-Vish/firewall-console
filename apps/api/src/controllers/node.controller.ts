@@ -5,13 +5,6 @@ import crypto from 'crypto';
 import os from 'os';
 
 
-/**
- * Register a new node with the system
- * @param req Request object
- * @param res Response object
- * @param next Next function
- */
-
 export const registerNode = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
         const { username } = req.user;

@@ -3,7 +3,7 @@ import { sign } from 'jsonwebtoken';
 import { Response } from 'express';
 import { Mongoose, ObjectId, Schema } from 'mongoose';
 import { arch, cpus, hostname, platform, release } from 'os';
-
+import swaggerJsdoc from 'swagger-jsdoc';
 export function utils(): string {
   return 'utils';
 }
@@ -52,3 +52,6 @@ export const getDeviceMetadata = () => {
       cpuCores: cpus().length
   };
 };
+
+
+
