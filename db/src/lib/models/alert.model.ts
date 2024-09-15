@@ -31,6 +31,14 @@ const alertSchema = new mongoose.Schema({
       type: String,
       required: true,
   },
+  isSeen:{
+        type: Boolean,
+        default: false,
+  },
+    isResolved:{
+        type: Boolean,
+        default: false,
+    }
 }, { timestamps: true });
 
 export const Alert = mongoose.model('Alert', alertSchema);

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { ApiError, cookieOptions } from '@firewall/utils';
+import { ApiError, cookieOptions, RequestWithUser } from '@firewall/utils';
 import { User } from '@firewall/db';
 import jwt from 'jsonwebtoken';
 
@@ -42,7 +42,7 @@ const generateAccessAndRefreshToken = async (role: string, id: mongoose.Types.Ob
 }
 
 
-const registerUser = async (req: Request, res: Response, next: NextFunction) => {
+export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log('registerUser');
     const { username, email, password , role } = req.body;
@@ -78,7 +78,7 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -144,4 +144,23 @@ export const refreshAccessToken = async (req: Request, res: Response, next: Next
   }
 }
 
-export { registerUser, loginUser };
+
+export const isLoggedIn = (req: RequestWithUser, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User is not logged in' });
+    }
+    return res.status(200).json({
+      message: 'User is logged in',
+      user: {
+        id: req.user.id,
+        username: req.user.username,
+        email: req.user.email,
+        role: req.user.role,
+      },
+    });
+  } catch (error) {
+    return next(new ApiError('An error occurred', 500));
+  }
+};
+

@@ -1,5 +1,6 @@
 import express from "express";
-import { loginUser, refreshAccessToken, registerUser } from "../controllers/auth.controller";
+import { isLoggedIn, loginUser, refreshAccessToken, registerUser } from "../controllers/auth.controller";
+import { verifyJWT } from "@firewall/utils";
 const app = express();
 const router = express.Router();
 
@@ -110,5 +111,27 @@ router.post("/login", loginUser);
  *         description: Server error
  */
 router.post("/refresh-token", refreshAccessToken);
+
+
+/**
+ * @swagger
+ * /auth/status:
+ *   get:
+ *     summary: Check user authentication status
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: User is authenticated
+ *       401:
+ *         description: User is not authenticated
+ *       500:
+ *         description: Server error
+ */
+
+
+
+app.get('/verify', verifyJWT, isLoggedIn);
+
 
 export default router;

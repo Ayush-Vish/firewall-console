@@ -14,11 +14,11 @@ export const storeLog = async (req :RequestWithUser, res:  Response, next : Next
 
         // Create and save a new log entry
         const log = new Log({
-            nodeId,  // Associate the log with the node
-            ip: nodeIp,  // Capture and store the IP address of the node
-            logType,  // The type of log (e.g., info, warning, error)
-            message,  // The log message
-            additionalInfo  // Additional details, if any (can be an object)
+            nodeId,  
+            ip: nodeIp,  
+            logType,  
+            message,
+            additionalInfo  
         });
 
         await log.save();  // Save the log to the database
@@ -47,3 +47,15 @@ export const getNodeLogs = async (req: RequestWithUser, res: Response, next: Nex
     }
   };
 
+export const getNodelogsAdmin = async (req: Request, res: Response, next: NextFunction) =>  {
+    try {
+        const { nodeId } = req.params;
+        const logs = await Log.find({ nodeId });
+        if (!logs || logs.length === 0) {
+            return res.status(404).json({ message: 'No logs found for this node' });
+        }
+        res.status(200).json(logs);
+    } catch (error) {
+        return next(new ApiError('Server error: ' + error.message, 500));
+    }
+  }
