@@ -44,6 +44,7 @@ const generateAccessAndRefreshToken = async (role: string, id: mongoose.Types.Ob
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    
     console.log('registerUser');
     const { username, email, password , role } = req.body;
     if (!username || !email || !password) {
