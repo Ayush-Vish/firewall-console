@@ -8,8 +8,6 @@ const nodeSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Associated user
     metadata: { 
 
-
-        
         os: { type: String }, // Operating System
         cpuUsage: { type: Number }, // CPU usage %
         memoryUsage: { type: Number }, // Memory usage %
