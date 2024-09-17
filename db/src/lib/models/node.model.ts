@@ -7,6 +7,9 @@ const nodeSchema = new mongoose.Schema({
     apiKey: { type: String, required: true, unique: true }, // Unique API Key per node
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Associated user
     metadata: { 
+
+
+        
         os: { type: String }, // Operating System
         cpuUsage: { type: Number }, // CPU usage %
         memoryUsage: { type: Number }, // Memory usage %
